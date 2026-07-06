@@ -16,6 +16,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+app.disable("x-powered-by");
+
 app.use(
   helmet({
     contentSecurityPolicy: {

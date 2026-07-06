@@ -24,11 +24,14 @@ export default function OpsDashboard() {
   const criticalAlerts = alerts?.filter(a => a.level === 'critical' && !a.acknowledged) || []
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-6">
+    <main className="p-6 max-w-[1600px] mx-auto space-y-6" aria-label="Operations Dashboard">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold tracking-tight text-primary">World Cup 2026 MetLife Command Center</h1>
           <p className="text-muted-foreground font-mono text-sm uppercase tracking-widest">Operations Management & Fan Experience</p>
+          <p className="text-muted-foreground text-xs max-w-3xl mt-1 opacity-80">
+            A GenAI-enabled solution that enhances stadium operations and the overall tournament experience for fans, organizers, volunteers, and venue staff. Leveraging Generative AI to improve navigation, crowd management, accessibility, transportation, sustainability, multilingual assistance, operational intelligence, and real-time decision support during the FIFA World Cup 2026.
+          </p>
         </div>
         <div className="flex items-center gap-3 bg-secondary/30 px-4 py-2 rounded-lg border border-border/50">
           <div className="flex items-center gap-2">
@@ -243,8 +246,9 @@ export default function OpsDashboard() {
                   onClick={() => refetchRecommendations()} 
                   disabled={isFetchingRecommendations}
                   className="h-8 px-2 text-xs"
+                  aria-label="Refresh AI Recommendations"
                 >
-                  <RefreshCw className={cn("w-3.5 h-3.5 mr-1.5", isFetchingRecommendations && "animate-spin")} />
+                  <RefreshCw className={cn("w-3.5 h-3.5 mr-1.5", isFetchingRecommendations && "animate-spin")} aria-hidden="true" />
                   Refresh
                 </Button>
               </div>
@@ -267,7 +271,7 @@ export default function OpsDashboard() {
                     <div key={rec.id} className="p-4 rounded-lg border border-border bg-card/80 backdrop-blur shadow-sm space-y-3" role="article" aria-live="polite">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase">
-                          <Lightbulb className="w-3 h-3 text-amber-500" />
+                          <Lightbulb className="w-3 h-3 text-amber-500" aria-hidden="true" />
                           {rec.category.replace('_', ' ')}
                         </div>
                         <Badge variant={
@@ -298,7 +302,7 @@ export default function OpsDashboard() {
                   
                   {!isFetchingRecommendations && recommendations?.length === 0 && (
                     <div className="text-center p-8 text-muted-foreground flex flex-col items-center gap-2">
-                      <ShieldAlert className="w-8 h-8 opacity-20" />
+                      <ShieldAlert className="w-8 h-8 opacity-20" aria-hidden="true" />
                       <p className="text-sm">Operations normal. No urgent recommendations.</p>
                     </div>
                   )}
@@ -309,6 +313,6 @@ export default function OpsDashboard() {
         </div>
 
       </div>
-    </div>
+    </main>
   )
 }

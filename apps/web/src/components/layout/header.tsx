@@ -8,7 +8,8 @@ export function Header() {
   const { data: status, isLoading } = useGetStadiumStatus()
 
   return (
-    <header className="h-16 border-b border-border bg-card/80 backdrop-blur flex items-center justify-between px-6 sticky top-0 z-10">
+    <header className="h-16 border-b border-border bg-card/80 backdrop-blur flex items-center justify-between px-6 sticky top-0 z-10" role="banner">
+      <nav className="flex w-full items-center justify-between" aria-label="Main Navigation">
       {isLoading || !status ? (
         <div className="flex w-full items-center justify-between">
           <Skeleton className="h-8 w-48" />
@@ -74,6 +75,7 @@ export function Header() {
           </div>
         </>
       )}
+      </nav>
     </header>
   )
 }
