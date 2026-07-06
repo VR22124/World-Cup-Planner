@@ -1,3 +1,3 @@
 export { ai } from "./client.js";
-export { generateImage } from "./image.js";
-export { batchProcess, batchProcessWithSSE, isRateLimitError, type BatchOptions } from "./batch.js";
+export { generateImage } from "./image/index.js";
+export { batchProcess, batchProcessWithSSE, isRateLimitError, type BatchOptions } from "./batch/index.js";
