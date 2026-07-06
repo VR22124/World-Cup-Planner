@@ -1,23 +1,15 @@
 {
+  "name": "world-cup-planner",
   "version": 2,
-  "builds": [
-    {
-      "src": "apps/web/package.json",
-      "use": "@vercel/vite"
-    },
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
+  "outputDirectory": "apps/web/dist/public",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "https://world-cup-planner-api.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
-      "destination": "/apps/web/$1"
+      "destination": "/index.html"
     }
   ]
 }
