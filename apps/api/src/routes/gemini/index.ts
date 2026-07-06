@@ -205,4 +205,25 @@ router.post("/gemini/conversations/:id/messages", async (req, res) => {
   }
 });
 
+import { GenerateAnnouncementBody } from "@workspace/api-zod";
+import { generateAnnouncement } from "../../services/aiService";
+
+// Generate Multilingual Announcement
+router.post("/gemini/announcement", async (req, res) => {
+  const parsed = GenerateAnnouncementBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+
+  try {
+    const { incidentDescription, severity, zone } = parsed.data;
+    const result = await generateAnnouncement(incidentDescription, severity, zone || "Global");
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Failed to generate announcement");
+    res.status(500).json({ error: "Failed to generate announcement" });
+  }
+});
+
 export default router;

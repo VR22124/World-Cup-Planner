@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface GeminiMessageInput {
-  content: string;
+export interface AnnouncementRequest {
+  incidentId: string;
+  incidentDescription: string;
+  severity: string;
+  zone?: string;
 }

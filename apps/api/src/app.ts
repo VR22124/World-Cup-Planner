@@ -20,6 +20,7 @@ import rateLimit from "express-rate-limit";
 import type { IncomingMessage, ServerResponse } from "http";
 import router from "./routes/index";
 import { logger } from "./lib/logger";
+import hpp from "hpp";
 
 const app = express();
 
@@ -108,8 +109,11 @@ app.use(
 // ---------------------------------------------------------------------------
 // 6. Body parsing with payload size limits (DoS prevention)
 // ---------------------------------------------------------------------------
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
 
 // ---------------------------------------------------------------------------
 // 7. Application routes

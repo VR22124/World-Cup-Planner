@@ -302,6 +302,25 @@ paths:
           content:
             text/event-stream: {}
 
+  /gemini/announcement:
+    post:
+      operationId: generateAnnouncement
+      tags: [gemini]
+      summary: Generate a multilingual PA announcement for an incident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementRequest"
+      responses:
+        "200":
+          description: Generated multilingual announcement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnouncementResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -736,3 +755,36 @@ components:
           type: string
       required:
         - error
+
+    AnnouncementRequest:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        incidentDescription:
+          type: string
+        severity:
+          type: string
+        zone:
+          type: string
+      required:
+        - incidentId
+        - incidentDescription
+        - severity
+
+    AnnouncementResponse:
+      type: object
+      properties:
+        english:
+          type: string
+        spanish:
+          type: string
+        french:
+          type: string
+        portuguese:
+          type: string
+      required:
+        - english
+        - spanish
+        - french
+        - portuguese

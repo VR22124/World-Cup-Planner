@@ -3,16 +3,19 @@ import {
   useListGates, 
   useListIncidents, 
   useListAlerts, 
-  useGetOperationalRecommendations 
+  useGetOperationalRecommendations,
+  useGenerateAnnouncement
 } from "@workspace/api-client-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { AlertTriangle, ShieldAlert, Users, Zap, Map, Lightbulb, RefreshCw } from "lucide-react"
+import { AlertTriangle, ShieldAlert, Users, Zap, Map, Lightbulb, RefreshCw, Volume2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import React, { useState } from "react"
 
 export default function OpsDashboard() {
   const { data: heatmap } = useGetCrowdHeatmap()
@@ -64,12 +67,13 @@ export default function OpsDashboard() {
         {/* Left Column - Realtime Map & Gates */}
         <div className="xl:col-span-3 space-y-6">
           
-          <Card className="border-border/50 shadow-md">
-            <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Map className="w-5 h-5 text-primary" />
-                  <CardTitle>Sector Heatmap</CardTitle>
+          <section aria-labelledby="heatmap-title">
+            <Card className="border-border/50 shadow-md">
+              <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Map className="w-5 h-5 text-primary" aria-hidden="true" />
+                    <CardTitle id="heatmap-title">Sector Heatmap</CardTitle>
                 </div>
                 <Badge variant="outline" className="font-mono text-[10px]">LIVE</Badge>
               </div>
@@ -115,13 +119,15 @@ export default function OpsDashboard() {
               </div>
             </CardContent>
           </Card>
+          </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border/50 shadow-md flex flex-col">
-              <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-primary" />
-                  <CardTitle>Active Incidents</CardTitle>
+            <section aria-labelledby="incidents-title">
+              <Card className="border-border/50 shadow-md flex flex-col">
+                <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-5 h-5 text-primary" aria-hidden="true" />
+                    <CardTitle id="incidents-title">Active Incidents</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="p-0 flex-1">
@@ -168,6 +174,9 @@ export default function OpsDashboard() {
                               {incident.status}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <AnnouncementDialog incident={incident} />
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -175,12 +184,14 @@ export default function OpsDashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
+            </section>
 
-            <Card className="border-border/50 shadow-md flex flex-col">
-              <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <CardTitle>Gate Congestion</CardTitle>
+            <section aria-labelledby="gates-title">
+              <Card className="border-border/50 shadow-md flex flex-col">
+                <CardHeader className="border-b border-border/30 bg-secondary/10 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" aria-hidden="true" />
+                    <CardTitle id="gates-title">Gate Congestion</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="p-0 flex-1">
@@ -227,18 +238,20 @@ export default function OpsDashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
+            </section>
           </div>
 
         </div>
 
         {/* Right Column - AI Recommendations */}
         <div className="xl:col-span-1">
-          <Card className="h-full border-primary/20 bg-gradient-to-b from-primary/5 to-transparent flex flex-col">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-primary">
-                  <Zap className="w-5 h-5" />
-                  <CardTitle>AI Insights</CardTitle>
+          <section aria-labelledby="ai-insights-title" className="h-full">
+            <Card className="h-full border-primary/20 bg-gradient-to-b from-primary/5 to-transparent flex flex-col">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Zap className="w-5 h-5" aria-hidden="true" />
+                    <CardTitle id="ai-insights-title">AI Insights</CardTitle>
                 </div>
                 <Button 
                   variant="outline" 
@@ -310,9 +323,76 @@ export default function OpsDashboard() {
               </ScrollArea>
             </CardContent>
           </Card>
+          </section>
         </div>
 
       </div>
     </main>
+  )
+}
+
+function AnnouncementDialog({ incident }: { incident: any }) {
+  const { mutateAsync: generate, isPending } = useGenerateAnnouncement()
+  const [announcement, setAnnouncement] = useState<any>(null)
+
+  const handleGenerate = async () => {
+    try {
+      const result = await generate({
+        data: {
+          incidentId: incident.id,
+          incidentDescription: incident.description,
+          severity: incident.severity,
+          zone: incident.location,
+        }
+      })
+      setAnnouncement(result)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" aria-label="Generate PA Announcement">
+          <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Multilingual PA Announcement</DialogTitle>
+          <DialogDescription>
+            AI-generated safety broadcast for incident: {incident.type.replace('_', ' ')}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="flex flex-col gap-4 py-4">
+          {!announcement ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Generate a calm, clear, and localized broadcast message in English, Spanish, French, and Portuguese.
+              </p>
+              <Button onClick={handleGenerate} disabled={isPending}>
+                {isPending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+                Generate Broadcast
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {Object.entries(announcement).map(([lang, text]) => (
+                <div key={lang} className="space-y-1">
+                  <h4 className="text-xs font-bold uppercase text-muted-foreground">{lang}</h4>
+                  <p className="text-sm border-l-2 border-primary pl-3 py-1">{text as string}</p>
+                </div>
+              ))}
+              <Button variant="outline" className="w-full mt-4" onClick={handleGenerate} disabled={isPending}>
+                {isPending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+                Regenerate
+              </Button>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
