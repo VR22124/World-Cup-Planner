@@ -4,16 +4,22 @@
   "files": [],
   "references": [
     {
-      "path": "./lib/db"
+      "path": "./apps/api"
     },
     {
-      "path": "./lib/api-client-react"
+      "path": "./apps/web"
     },
     {
-      "path": "./lib/api-zod"
+      "path": "./packages/db"
     },
     {
-      "path": "./lib/integrations-gemini-ai"
+      "path": "./packages/api-client-react"
+    },
+    {
+      "path": "./packages/api-zod"
+    },
+    {
+      "path": "./packages/integrations-gemini-ai"
     }
   ]
 }
