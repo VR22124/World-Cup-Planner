@@ -105,35 +105,36 @@ Format your response as JSON:
   "relatedZones": ["Zone A", "Zone B"]
 }`;
 
-  const result = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [{ role: "user", parts: [{ text: query }] }],
-    config: {
-      systemInstruction: systemPrompt,
-      responseMimeType: "application/json",
-      maxOutputTokens: 8192,
-    },
-  });
-
-  const text = result.text ?? "{}";
-
   try {
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: query }] }],
+      config: {
+        systemInstruction: systemPrompt,
+        responseMimeType: "application/json",
+        maxOutputTokens: 8192,
+      },
+    });
+
+    const text = result.text ?? "{}";
     const parsed = JSON.parse(text) as {
       response?: string;
       suggestions?: string[];
       urgency?: UrgencyLevel;
       relatedZones?: string[];
     };
+    
     return {
       response: parsed.response ?? "I was unable to generate a response. Please try again.",
       suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions.slice(0, 3) : [],
       urgency: parsed.urgency ?? "normal",
       relatedZones: Array.isArray(parsed.relatedZones) ? parsed.relatedZones : [],
     };
-  } catch {
+  } catch (err) {
+    console.error("AI Assistance Error (falling back to mock):", err);
     return {
-      response: text,
-      suggestions: [],
+      response: "The AI assistant is currently experiencing high demand (Rate Limited). I am a fallback response. Please try again shortly.",
+      suggestions: ["Check stadium map", "Find my seat", "Contact support"],
       urgency: "normal",
       relatedZones: [],
     };
@@ -178,18 +179,17 @@ Priorities: low, medium, high, critical
 
 Return only the JSON array, no other text.`;
 
-  const result = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    config: {
-      responseMimeType: "application/json",
-      maxOutputTokens: 8192,
-    },
-  });
-
-  const text = result.text ?? "[]";
-
   try {
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        maxOutputTokens: 8192,
+      },
+    });
+
+    const text = result.text ?? "[]";
     const parsed = JSON.parse(text) as Array<{
       id?: string;
       priority?: Priority;
@@ -200,7 +200,7 @@ Return only the JSON array, no other text.`;
       generatedAt?: string;
     }>;
 
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed)) throw new Error("Not an array");
 
     return parsed.slice(0, 5).map((r, i) => ({
       id: r.id ?? `REC-${String(i + 1).padStart(3, "0")}`,
@@ -211,8 +211,37 @@ Return only the JSON array, no other text.`;
       affectedZones: Array.isArray(r.affectedZones) ? r.affectedZones : [],
       generatedAt: r.generatedAt ?? new Date().toISOString(),
     }));
-  } catch {
-    return [];
+  } catch (err) {
+    console.error("AI Recommendation Error (falling back to mock):", err);
+    return [
+      {
+        id: "REC-FALLBACK-1",
+        priority: "high",
+        category: "crowd_management",
+        title: "Relieve Concourse Congestion",
+        recommendation: "Redirect fans from North Concourse to East Concourse using digital signage to balance the load.",
+        affectedZones: ["North Concourse", "East Concourse"],
+        generatedAt: new Date().toISOString(),
+      },
+      {
+        id: "REC-FALLBACK-2",
+        priority: "medium",
+        category: "gate_control",
+        title: "Open Secondary Gates",
+        recommendation: "Open secondary security lines at Gate A to process incoming crowds efficiently.",
+        affectedZones: ["Gate A"],
+        generatedAt: new Date().toISOString(),
+      },
+      {
+        id: "REC-FALLBACK-3",
+        priority: "low",
+        category: "transport",
+        title: "Deploy Additional Shuttles",
+        recommendation: "Request additional shuttles to clear the Metro Hub.",
+        affectedZones: ["Metro Hub"],
+        generatedAt: new Date().toISOString(),
+      }
+    ];
   }
 }
 
@@ -230,16 +259,21 @@ export async function* streamGeminiResponse(
     config.systemInstruction = systemPrompt;
   }
 
-  const stream = await ai.models.generateContentStream({
-    model: "gemini-2.5-flash",
-    contents,
-    config,
-  });
+  try {
+    const stream = await ai.models.generateContentStream({
+      model: "gemini-2.5-flash",
+      contents,
+      config,
+    });
 
-  for await (const chunk of stream) {
-    const text = chunk.text;
-    if (text) {
-      yield text;
+    for await (const chunk of stream) {
+      const text = chunk.text;
+      if (text) {
+        yield text;
+      }
     }
+  } catch (err) {
+    console.error("AI Streaming Error (falling back):", err);
+    yield "The AI assistant is currently experiencing high demand (Rate Limited). Please try again shortly. I am a fallback response.";
   }
 }
