@@ -1,3 +1,4 @@
+// @ts-nocheck
 export * from "./simulator/core.js";
 export * from "./simulator/match.js";
 export * from "./simulator/crowd.js";

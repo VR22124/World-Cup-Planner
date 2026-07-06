@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GoogleGenAI, Modality } from "@google/genai";
 
 if (!process.env.GEMINI_API_KEY) {

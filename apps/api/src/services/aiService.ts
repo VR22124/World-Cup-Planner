@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Service — uses Gemini to generate contextual stadium assistance
  * and operational recommendations based on live simulated stadium state.

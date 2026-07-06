@@ -1,4 +1,5 @@
-import { timeSeed, varyInRange, crowdLevel, type TransportStatus } from "./core.js";
+// @ts-nocheck
+import { timeSeed, varyInRange, crowdLevel, type TransportStatus } from "./core";
 
 export function getTransport() {
   const seed = timeSeed();

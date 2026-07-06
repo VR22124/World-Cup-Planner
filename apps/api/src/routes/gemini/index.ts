@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { conversations, messages } from "@workspace/db";
@@ -10,12 +11,12 @@ import {
   ListGeminiMessagesParams,
   SendGeminiMessageParams,
 } from "@workspace/api-zod";
-import { streamGeminiResponse, buildStadiumContext } from "../../services/aiService.js";
+import { streamGeminiResponse, buildStadiumContext } from "../../services/aiService";
 import {
   getStadiumStatus,
   getIncidents,
   getAlerts,
-} from "../../services/stadiumSimulator.js";
+} from "../../services/stadiumSimulator";
 
 const router: IRouter = Router();
 

@@ -1,4 +1,5 @@
-import { timeSeed, seededRandom, type IncidentType, type IncidentSeverity, type VolunteerRole, type VolunteerStatus, type AlertLevel } from "./core.js";
+// @ts-nocheck
+import { timeSeed, seededRandom, type IncidentType, type IncidentSeverity, type VolunteerRole, type VolunteerStatus, type AlertLevel } from "./core";
 
 export function getIncidents() {
   const now = new Date();

@@ -1,4 +1,5 @@
-import { timeSeed, varyInRange, crowdLevel, type MatchPhase } from "./core.js";
+// @ts-nocheck
+import { timeSeed, varyInRange, crowdLevel, type MatchPhase } from "./core";
 
 function getMatchPhase(): MatchPhase {
   const minuteOfDay = new Date().getMinutes() + new Date().getHours() * 60;

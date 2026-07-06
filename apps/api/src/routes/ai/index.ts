@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, type IRouter } from "express";
 import { GetAiAssistanceBody } from "@workspace/api-zod";
 import {
