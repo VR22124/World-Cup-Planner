@@ -2,7 +2,6 @@ import { timeSeed, seededRandom, type IncidentType, type IncidentSeverity, type 
 
 export function getIncidents() {
   const now = new Date();
-  const seed = timeSeed();
 
   const base = [
     {

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { AssistResponse } from "@workspace/api-client-react";
+
 
 export interface StreamMessage {
   role: "user" | "assistant";
@@ -93,8 +93,8 @@ export function useGeminiStream() {
           }
         }
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') return;
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages[assistantMessageIdx] = {

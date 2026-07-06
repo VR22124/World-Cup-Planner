@@ -24,12 +24,12 @@ vi.mock("@/components/ui/skeleton", () => ({
 }));
 
 vi.mock("@/lib/utils", () => ({
-  cn: (...args: any[]) => args.join(" ")
+  cn: (...args: unknown[]) => args.join(" ")
 }));
 
 // Mock Link from wouter
 vi.mock("wouter", () => ({
-  Link: ({ children }: any) => <a>{children}</a>,
+  Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
   useLocation: () => ["/", vi.fn()],
 }));
 

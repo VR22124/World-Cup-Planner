@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response } from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -32,18 +32,20 @@ app.use(
   })
 );
 app.use(compression());
+import { type IncomingMessage, type ServerResponse } from "http";
+
 app.use(
   pinoHttp({
     logger,
     serializers: {
-      req(req: any) {
+      req(req: IncomingMessage & { id?: string }) {
         return {
           id: req.id,
           method: req.method,
           url: req.url?.split("?")[0],
         };
       },
-      res(res: any) {
+      res(res: ServerResponse) {
         return {
           statusCode: res.statusCode,
         };

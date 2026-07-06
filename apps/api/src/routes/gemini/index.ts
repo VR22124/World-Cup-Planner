@@ -11,11 +11,6 @@ import {
   SendGeminiMessageParams,
 } from "@workspace/api-zod";
 import { streamGeminiResponse, buildStadiumContext } from "../../services/aiService";
-import {
-  getStadiumStatus,
-  getIncidents,
-  getAlerts,
-} from "../../services/stadiumSimulator";
 
 const router: IRouter = Router();
 

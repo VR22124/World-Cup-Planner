@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { AiChatWidget } from "@/components/chat/ai-chat-widget"
-import { MapPin, Info, ArrowRight, Activity, Thermometer, Clock, Users } from "lucide-react"
+import { MapPin, ArrowRight, Activity, Thermometer, Clock } from "lucide-react"
 
 export default function FanHub() {
   const { data: status } = useGetStadiumStatus()

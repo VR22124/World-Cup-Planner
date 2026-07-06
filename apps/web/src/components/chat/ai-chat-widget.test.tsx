@@ -26,15 +26,15 @@ vi.mock("@/hooks/use-gemini-stream", () => ({
 }));
 
 vi.mock("@/components/ui/select", () => ({
-  Select: ({ children }: any) => <div>{children}</div>,
-  SelectContent: ({ children }: any) => <div>{children}</div>,
-  SelectItem: ({ children }: any) => <div>{children}</div>,
-  SelectTrigger: ({ children }: any) => <button>{children}</button>,
-  SelectValue: ({ children }: any) => <span>{children}</span>,
+  Select: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SelectItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SelectTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  SelectValue: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
 }));
 
 vi.mock("@/lib/utils", () => ({
-  cn: (...args: any[]) => args.join(" ")
+  cn: (...args: unknown[]) => args.join(" ")
 }));
 
 // Mock ResizeObserver

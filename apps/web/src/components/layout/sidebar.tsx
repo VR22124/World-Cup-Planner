@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Link, useLocation } from "wouter"
 import { cn } from "@/lib/utils"
-import { Activity, ShieldAlert, TrainFront, Users, PersonStanding, Home, Menu } from "lucide-react"
+import { Activity, ShieldAlert, TrainFront, Users, PersonStanding, Home } from "lucide-react"
 
 const navItems = [
   { href: "/", label: "World Cup Fan Hub", icon: Home },
