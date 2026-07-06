@@ -5,7 +5,7 @@
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "typecheck:libs": "tsc --build --force",
+    "typecheck:libs": "rm -rf packages/*/dist packages/*/.tsbuildinfo apps/*/.tsbuildinfo && tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./apps/**\" --filter \"./scripts\" --if-present run typecheck",
     "test": "GEMINI_API_KEY=test-key DATABASE_URL=test-db vitest run",
     "dev": "pnpm -r --parallel run dev"
