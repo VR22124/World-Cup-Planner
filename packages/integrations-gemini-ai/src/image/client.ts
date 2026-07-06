@@ -1,19 +1,19 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
-if (!process.env.GEMINI_API_KEY) {
+if (!process.env['GEMINI_API_KEY']) {
   throw new Error(
     "GEMINI_API_KEY must be set. Please add your Gemini API key as a secret.",
   );
 }
 
-export const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+export const imageAi = new GoogleGenAI({
+  apiKey: process.env['GEMINI_API_KEY'],
 });
 
 export async function generateImage(
   prompt: string
 ): Promise<{ b64_json: string; mimeType: string }> {
-  const response = await ai.models.generateContent({
+  const response = await imageAi.models.generateContent({
     model: "gemini-2.5-flash-image",
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     config: {

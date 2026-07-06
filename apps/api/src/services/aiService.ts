@@ -255,7 +255,7 @@ export async function* streamGeminiResponse(
 
   const config: Record<string, unknown> = { maxOutputTokens: 8192 };
   if (systemPrompt) {
-    config.systemInstruction = systemPrompt;
+    config['systemInstruction'] = systemPrompt;
   }
 
   try {

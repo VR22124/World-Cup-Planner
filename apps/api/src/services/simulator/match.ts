@@ -9,7 +9,8 @@ function getMatchPhase(): MatchPhase {
     "second_half",
     "full_time",
   ];
-  return phases[Math.floor(minuteOfDay / 30) % phases.length];
+  const phase = phases[Math.floor(minuteOfDay / 30) % phases.length];
+  return phase ?? "pre_match";
 }
 
 function getMatchMinute(phase: MatchPhase): number {

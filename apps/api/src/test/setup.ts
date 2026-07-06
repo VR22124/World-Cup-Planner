@@ -1,2 +1,2 @@
 /// <reference types="node" />
-process.env.GEMINI_API_KEY = "test-key";
+process.env['GEMINI_API_KEY'] = "test-key";

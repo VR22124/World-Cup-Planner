@@ -67,10 +67,13 @@ export function useGeminiStream() {
                   // Sometimes done payload comes with suggestions/urgency if we want to model that
                   setMessages(prev => {
                     const newMessages = [...prev];
-                    newMessages[assistantMessageIdx] = {
-                      ...newMessages[assistantMessageIdx],
-                      isStreaming: false
-                    };
+                    const msg = newMessages[assistantMessageIdx];
+                    if (msg) {
+                      newMessages[assistantMessageIdx] = {
+                        ...msg,
+                        isStreaming: false
+                      };
+                    }
                     return newMessages;
                   });
                   done = true;
@@ -79,10 +82,13 @@ export function useGeminiStream() {
                   fullContent += data.content;
                   setMessages(prev => {
                     const newMessages = [...prev];
-                    newMessages[assistantMessageIdx] = {
-                      ...newMessages[assistantMessageIdx],
-                      content: fullContent
-                    };
+                    const msg = newMessages[assistantMessageIdx];
+                    if (msg) {
+                      newMessages[assistantMessageIdx] = {
+                        ...msg,
+                        content: fullContent
+                      };
+                    }
                     return newMessages;
                   });
                 }
@@ -116,9 +122,13 @@ export function useGeminiStream() {
       abortControllerRef.current.abort();
       setIsStreaming(false);
       setMessages(prev => {
-        if (prev.length > 0 && prev[prev.length - 1].role === "assistant") {
+        const lastMsg = prev[prev.length - 1];
+        if (prev.length > 0 && lastMsg && lastMsg.role === "assistant") {
           const newMessages = [...prev];
-          newMessages[newMessages.length - 1].isStreaming = false;
+          const newLastMsg = newMessages[newMessages.length - 1];
+          if (newLastMsg) {
+            newLastMsg.isStreaming = false;
+          }
           return newMessages;
         }
         return prev;
