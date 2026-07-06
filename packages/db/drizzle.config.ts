@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { defineConfig } from "drizzle-kit";
 import path from "path";
 

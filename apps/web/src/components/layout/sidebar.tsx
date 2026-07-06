@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils"
 import { Activity, ShieldAlert, TrainFront, Users, PersonStanding, Home, Menu } from "lucide-react"
 
 const navItems = [
-  { href: "/", label: "Fan Hub", icon: Home },
-  { href: "/operations", label: "Ops Dashboard", icon: Activity },
+  { href: "/", label: "World Cup Fan Hub", icon: Home },
+  { href: "/operations", label: "MetLife Command Center", icon: Activity },
   { href: "/volunteers", label: "Volunteer Hub", icon: Users },
-  { href: "/transport", label: "Transport", icon: TrainFront },
+  { href: "/transport", label: "Multi-modal Transport", icon: TrainFront },
   { href: "/alerts", label: "Live Alerts", icon: ShieldAlert },
-  { href: "/accessibility", label: "Accessibility", icon: PersonStanding },
+  { href: "/accessibility", label: "Accessibility Services", icon: PersonStanding },
 ]
 
 export function Sidebar() {
@@ -23,7 +23,7 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-lg leading-tight tracking-tight text-foreground">StadiumIQ AI</span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">FIFA 2026</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">World Cup 2026</span>
         </div>
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

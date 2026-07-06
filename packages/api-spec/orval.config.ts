@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { defineConfig, InputTransformerFn } from "orval";
 import path from "path";
 

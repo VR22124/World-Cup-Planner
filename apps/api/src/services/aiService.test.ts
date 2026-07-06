@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, vi } from "vitest";
 import { buildStadiumContext } from "./aiService";
 
@@ -29,6 +28,8 @@ vi.mock("./stadiumSimulator.js", () => ({
   ]
 }));
 
+import { getOperationalRecommendations } from "./aiService";
+
 describe("aiService", () => {
   it("buildStadiumContext includes closed gates and congested gates", () => {
     const context = buildStadiumContext();
@@ -36,5 +37,13 @@ describe("aiService", () => {
     expect(context).toContain("CONGESTED GATES: Gate 2");
     expect(context).toContain("HIGH DENSITY ZONES: Zone A");
     expect(context).toContain("TRANSPORT ISSUES: Train: delayed");
+  });
+
+  it("getOperationalRecommendations returns fallback mock data when Google GenAI is unavailable or rate limited", async () => {
+    const recommendations = await getOperationalRecommendations();
+    expect(Array.isArray(recommendations)).toBe(true);
+    expect(recommendations.length).toBeGreaterThan(0);
+    expect(recommendations[0]).toHaveProperty("id");
+    expect(recommendations[0]).toHaveProperty("recommendation");
   });
 });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { timeSeed, varyInRange, crowdLevel, type MatchPhase } from "./core";
 
 function getMatchPhase(): MatchPhase {

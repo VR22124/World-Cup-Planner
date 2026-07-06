@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { timeSeed, varyInRange, crowdLevel, type GateStatus } from "./core";
 
 export function getGates() {

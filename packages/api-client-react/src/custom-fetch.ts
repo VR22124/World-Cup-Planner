@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type CustomFetchOptions = RequestInit & {
   responseType?: "json" | "text" | "blob" | "auto";
 };

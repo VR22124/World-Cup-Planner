@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { timeSeed, varyInRange, crowdLevel, type TransportStatus } from "./core";
 
 export function getTransport() {

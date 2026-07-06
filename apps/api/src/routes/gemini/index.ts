@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { conversations, messages } from "@workspace/db";

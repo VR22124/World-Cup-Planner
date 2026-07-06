@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type CrowdLevel = "low" | "moderate" | "high" | "critical";
 export type GateStatus = "open" | "congested" | "closed" | "restricted";
 export type MatchPhase =
