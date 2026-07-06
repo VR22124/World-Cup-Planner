@@ -1,21 +1,43 @@
+/**
+ * Express application configuration.
+ *
+ * Middleware order matters — each layer is applied in sequence:
+ *   1. Rate limiting (DoS protection)
+ *   2. Security headers (Helmet + X-Powered-By removal)
+ *   3. Response compression
+ *   4. Structured request logging
+ *   5. CORS enforcement
+ *   6. Body parsing with size limits
+ *   7. Application routes
+ */
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import pinoHttp from "pino-http";
+import rateLimit from "express-rate-limit";
+import type { IncomingMessage, ServerResponse } from "http";
 import router from "./routes/index";
 import { logger } from "./lib/logger";
 
 const app = express();
-import rateLimit from "express-rate-limit";
 
+// ---------------------------------------------------------------------------
+// 1. Rate limiting — prevent brute-force / DoS attacks
+// ---------------------------------------------------------------------------
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  windowMs: 15 * 60 * 1000, // 15-minute sliding window
+  max: 100,                  // 100 requests per window per IP
+  standardHeaders: true,     // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false,      // Disable `X-RateLimit-*` legacy headers
+  message: { error: "Too many requests from this IP, please try again after 15 minutes" },
 });
 app.use(limiter);
 
+// ---------------------------------------------------------------------------
+// 2. Security hardening
+// ---------------------------------------------------------------------------
 app.disable("x-powered-by");
 
 app.use(
@@ -26,64 +48,72 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://world-cup-planner-api.onrender.com", "https://world-cup-planner-jade.vercel.app"],
+        connectSrc: [
+          "'self'",
+          "https://world-cup-planner-api.onrender.com",
+          "https://world-cup-planner-jade.vercel.app",
+        ],
       },
     },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-    frameguard: {
-      action: "deny",
-    },
+    hsts: { maxAge: 31_536_000, includeSubDomains: true, preload: true },
+    frameguard: { action: "deny" },
     xssFilter: true,
     noSniff: true,
-  })
+  }),
 );
-app.use(compression());
-import { type IncomingMessage, type ServerResponse } from "http";
 
+// ---------------------------------------------------------------------------
+// 3. Compression — gzip / brotli responses
+// ---------------------------------------------------------------------------
+app.use(compression());
+
+// ---------------------------------------------------------------------------
+// 4. Structured request logging (pino)
+// ---------------------------------------------------------------------------
 app.use(
   pinoHttp({
     logger,
     serializers: {
       req(req: IncomingMessage & { id?: string }) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0],
-        };
+        return { id: req.id, method: req.method, url: req.url?.split("?")[0] };
       },
       res(res: ServerResponse) {
-        return {
-          statusCode: res.statusCode,
-        };
+        return { statusCode: res.statusCode };
       },
     },
   }),
 );
 
-const allowedOrigins = [
+// ---------------------------------------------------------------------------
+// 5. CORS — explicit origin allow-list
+// ---------------------------------------------------------------------------
+const ALLOWED_ORIGINS: readonly string[] = [
   "http://localhost:5173",
   "https://world-cup-planner-jade.vercel.app",
-];
+] as const;
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin(origin, callback) {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error(`Origin "${origin}" not allowed by CORS`));
       }
     },
     credentials: true,
-  })
+  }),
 );
-app.use(express.json({ limit: "1mb" })); // Prevent large payload DoS
+
+// ---------------------------------------------------------------------------
+// 6. Body parsing with payload size limits (DoS prevention)
+// ---------------------------------------------------------------------------
+app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
+// ---------------------------------------------------------------------------
+// 7. Application routes
+// ---------------------------------------------------------------------------
 app.use("/api", router);
 
 export default app;
