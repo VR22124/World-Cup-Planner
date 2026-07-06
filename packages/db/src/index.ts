@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
-import * as schema from "./schema";
+import * as schema from "./schema/index.js";
 
 const { Pool } = pg;
 
@@ -13,6 +13,6 @@ if (!process.env['DATABASE_URL']) {
 export const pool = new Pool({ connectionString: process.env['DATABASE_URL'] });
 export const db = drizzle(pool, { schema });
 
-export { conversations, insertConversationSchema, type Conversation, type InsertConversation } from "./schema/conversations";
-export { messages, insertMessageSchema, type Message, type InsertMessage } from "./schema/messages";
+export { conversations, insertConversationSchema, type Conversation, type InsertConversation } from "./schema/conversations.js";
+export { messages, insertMessageSchema, type Message, type InsertMessage } from "./schema/messages.js";
 export { eq, and, desc, sql } from "drizzle-orm";

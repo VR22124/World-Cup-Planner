@@ -1,5 +1,5 @@
-export * from "./generated/api";
-export * from "./generated/types/index";
+export * from "./generated/api.js";
+export * from "./generated/types/index.js";
 
 // Explicitly export types that Vercel is failing to resolve from wildcard exports
 export {
@@ -10,4 +10,4 @@ export {
   ListGeminiMessagesParams,
   SendGeminiMessageParams,
   GetAiAssistanceBody,
-} from "./generated/api";
+} from "./generated/api.js";
