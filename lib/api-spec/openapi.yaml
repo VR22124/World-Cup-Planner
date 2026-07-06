@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: StadiumIQ AI - FIFA World Cup 2026 Stadium Operations Platform
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: stadium
+    description: Stadium status, crowd, gates, transport, incidents
+  - name: ai
+    description: AI assistant and recommendations
+  - name: gemini
+    description: Gemini AI chat operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,278 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /stadium/status:
+    get:
+      operationId: getStadiumStatus
+      tags: [stadium]
+      summary: Get overall stadium status snapshot
+      description: Returns live simulated data for match, weather, and crowd overview
+      responses:
+        "200":
+          description: Stadium status snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StadiumStatus"
+
+  /stadium/gates:
+    get:
+      operationId: listGates
+      tags: [stadium]
+      summary: List all gates with congestion status
+      responses:
+        "200":
+          description: List of gates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gate"
+
+  /stadium/crowd:
+    get:
+      operationId: getCrowdHeatmap
+      tags: [stadium]
+      summary: Get crowd density heatmap by zone
+      responses:
+        "200":
+          description: Crowd zone data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrowdZone"
+
+  /stadium/transport:
+    get:
+      operationId: listTransport
+      tags: [stadium]
+      summary: Get transport options and delay status
+      responses:
+        "200":
+          description: Transport routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportRoute"
+
+  /stadium/incidents:
+    get:
+      operationId: listIncidents
+      tags: [stadium]
+      summary: List active incidents
+      responses:
+        "200":
+          description: Active incidents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Incident"
+
+  /stadium/volunteers:
+    get:
+      operationId: listVolunteers
+      tags: [stadium]
+      summary: List volunteers with assignments and availability
+      responses:
+        "200":
+          description: Volunteer roster
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Volunteer"
+
+  /stadium/alerts:
+    get:
+      operationId: listAlerts
+      tags: [stadium]
+      summary: Get live operational alerts
+      responses:
+        "200":
+          description: Live alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /stadium/accessibility:
+    get:
+      operationId: getAccessibilityInfo
+      tags: [stadium]
+      summary: Get accessibility services and resources
+      responses:
+        "200":
+          description: Accessibility information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessibilityInfo"
+
+  /ai/assist:
+    post:
+      operationId: getAiAssistance
+      tags: [ai]
+      summary: Get AI-generated contextual assistance
+      description: Accepts a user query and persona, returns AI recommendations grounded in current stadium state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistRequest"
+      responses:
+        "200":
+          description: AI assistance response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistResponse"
+
+  /ai/recommendations:
+    get:
+      operationId: getOperationalRecommendations
+      tags: [ai]
+      summary: Get proactive AI operational recommendations
+      description: AI analyzes current stadium state and returns prioritized recommendations for ops team
+      responses:
+        "200":
+          description: AI operational recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OperationalRecommendation"
+
+  /gemini/conversations:
+    get:
+      operationId: listGeminiConversations
+      tags: [gemini]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeminiConversation"
+    post:
+      operationId: createGeminiConversation
+      tags: [gemini]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiConversation"
+
+  /gemini/conversations/{id}:
+    get:
+      operationId: getGeminiConversation
+      tags: [gemini]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteGeminiConversation
+      tags: [gemini]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /gemini/conversations/{id}/messages:
+    get:
+      operationId: listGeminiMessages
+      tags: [gemini]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeminiMessage"
+    post:
+      operationId: sendGeminiMessage
+      tags: [gemini]
+      summary: Send a message and receive an AI response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +312,427 @@ components:
       required:
         - status
 
+    StadiumStatus:
+      type: object
+      properties:
+        matchStatus:
+          $ref: "#/components/schemas/MatchStatus"
+        weather:
+          $ref: "#/components/schemas/Weather"
+        overallCrowdLevel:
+          type: string
+          enum: [low, moderate, high, critical]
+        totalAttendance:
+          type: integer
+        capacityPercent:
+          type: number
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - matchStatus
+        - weather
+        - overallCrowdLevel
+        - totalAttendance
+        - capacityPercent
+        - updatedAt
+
+    MatchStatus:
+      type: object
+      properties:
+        homeTeam:
+          type: string
+        awayTeam:
+          type: string
+        homeScore:
+          type: integer
+        awayScore:
+          type: integer
+        minute:
+          type: integer
+        phase:
+          type: string
+          enum: [pre_match, first_half, half_time, second_half, extra_time, full_time]
+        venue:
+          type: string
+      required:
+        - homeTeam
+        - awayTeam
+        - homeScore
+        - awayScore
+        - minute
+        - phase
+        - venue
+
+    Weather:
+      type: object
+      properties:
+        condition:
+          type: string
+        temperatureCelsius:
+          type: number
+        humidity:
+          type: integer
+        windKph:
+          type: number
+        uvIndex:
+          type: integer
+      required:
+        - condition
+        - temperatureCelsius
+        - humidity
+        - windKph
+        - uvIndex
+
+    Gate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [open, congested, closed, restricted]
+        densityPercent:
+          type: number
+        queueLengthMinutes:
+          type: integer
+        sector:
+          type: string
+        accessibilityEnabled:
+          type: boolean
+      required:
+        - id
+        - name
+        - status
+        - densityPercent
+        - queueLengthMinutes
+        - sector
+        - accessibilityEnabled
+
+    CrowdZone:
+      type: object
+      properties:
+        zoneId:
+          type: string
+        zoneName:
+          type: string
+        densityPercent:
+          type: number
+        level:
+          type: string
+          enum: [low, moderate, high, critical]
+        capacity:
+          type: integer
+        current:
+          type: integer
+      required:
+        - zoneId
+        - zoneName
+        - densityPercent
+        - level
+        - capacity
+        - current
+
+    TransportRoute:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [metro, bus, shuttle, taxi, walking]
+        name:
+          type: string
+        status:
+          type: string
+          enum: [on_time, delayed, disrupted, suspended]
+        delayMinutes:
+          type: integer
+        nextDeparture:
+          type: string
+        destination:
+          type: string
+        crowdLevel:
+          type: string
+          enum: [low, moderate, high]
+      required:
+        - id
+        - type
+        - name
+        - status
+        - delayMinutes
+        - nextDeparture
+        - destination
+        - crowdLevel
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [medical, security, crowd_surge, infrastructure, weather, transport]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        location:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, resolving, resolved]
+        reportedAt:
+          type: string
+          format: date-time
+        volunteersAssigned:
+          type: integer
+      required:
+        - id
+        - type
+        - severity
+        - location
+        - description
+        - status
+        - reportedAt
+        - volunteersAssigned
+
+    Volunteer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [gate_marshal, crowd_guide, medical, transport, accessibility, general]
+        zone:
+          type: string
+        status:
+          type: string
+          enum: [available, assigned, on_break, off_duty]
+        languages:
+          type: array
+          items:
+            type: string
+        currentTask:
+          type: ["string", "null"]
+      required:
+        - id
+        - name
+        - role
+        - zone
+        - status
+        - languages
+        - currentTask
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        level:
+          type: string
+          enum: [info, warning, critical]
+        title:
+          type: string
+        message:
+          type: string
+        zone:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        acknowledged:
+          type: boolean
+      required:
+        - id
+        - level
+        - title
+        - message
+        - zone
+        - createdAt
+        - acknowledged
+
+    AccessibilityInfo:
+      type: object
+      properties:
+        wheelchairEntrances:
+          type: array
+          items:
+            type: string
+        accessibleRestrooms:
+          type: array
+          items:
+            type: string
+        signLanguageServices:
+          type: boolean
+        audioDescriptionAvailable:
+          type: boolean
+        mobilityAidRental:
+          type: boolean
+        dedicatedVolunteers:
+          type: integer
+        emergencyEvacuationPoints:
+          type: array
+          items:
+            type: string
+      required:
+        - wheelchairEntrances
+        - accessibleRestrooms
+        - signLanguageServices
+        - audioDescriptionAvailable
+        - mobilityAidRental
+        - dedicatedVolunteers
+        - emergencyEvacuationPoints
+
+    AssistRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        persona:
+          type: string
+          enum: [fan, operations, volunteer]
+        language:
+          type: string
+      required:
+        - query
+        - persona
+
+    AssistResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+        urgency:
+          type: string
+          enum: [normal, elevated, urgent]
+        relatedZones:
+          type: array
+          items:
+            type: string
+      required:
+        - response
+        - suggestions
+        - urgency
+        - relatedZones
+
+    OperationalRecommendation:
+      type: object
+      properties:
+        id:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        category:
+          type: string
+          enum: [crowd_management, gate_control, transport, volunteer, safety, accessibility]
+        title:
+          type: string
+        recommendation:
+          type: string
+        affectedZones:
+          type: array
+          items:
+            type: string
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - priority
+        - category
+        - title
+        - recommendation
+        - affectedZones
+        - generatedAt
+
+    GeminiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    GeminiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    GeminiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+
+    GeminiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    GeminiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeminiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
