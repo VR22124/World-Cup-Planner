@@ -37,6 +37,7 @@ export * from './operationalRecommendationCategory';
 export * from './operationalRecommendationPriority';
 export * from './stadiumStatus';
 export * from './stadiumStatusOverallCrowdLevel';
+export * from './sustainabilityResponse';
 export * from './transportRoute';
 export * from './transportRouteCrowdLevel';
 export * from './transportRouteStatus';

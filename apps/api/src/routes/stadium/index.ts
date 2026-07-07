@@ -13,6 +13,7 @@ import {
   getVolunteers,
   getAlerts,
   getAccessibilityInfo,
+  getSustainabilityMetrics,
 } from "../../services/stadiumSimulator.js";
 
 const router: IRouter = Router();
@@ -55,6 +56,11 @@ router.get("/stadium/alerts", (_req, res) => {
 /** Accessibility resources: wheelchair entrances, restrooms, services. */
 router.get("/stadium/accessibility", (_req, res) => {
   res.json(getAccessibilityInfo());
+});
+
+/** Sustainability and Energy metrics. */
+router.get("/stadium/sustainability", (_req, res) => {
+  res.json(getSustainabilityMetrics());
 });
 
 export default router;

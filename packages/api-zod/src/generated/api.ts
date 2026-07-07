@@ -289,3 +289,16 @@ export const GenerateAnnouncementResponse = zod.object({
 })
 
 
+/**
+ * @summary Get sustainability and energy metrics
+ */
+export const GetSustainabilityResponse = zod.object({
+  "powerGridLoadPercent": zod.number(),
+  "renewableEnergyUsagePercent": zod.number(),
+  "carbonOffsetTons": zod.number(),
+  "wasteManagementCapacityPercent": zod.number(),
+  "waterUsageLiters": zod.number(),
+  "updatedAt": zod.string()
+})
+
+

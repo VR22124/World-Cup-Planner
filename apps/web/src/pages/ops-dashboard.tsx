@@ -12,6 +12,9 @@ import { HeatmapSection } from "@/components/dashboard/HeatmapSection"
 import { ActiveIncidentsTable } from "@/components/dashboard/ActiveIncidentsTable"
 import { GateCongestionTable } from "@/components/dashboard/GateCongestionTable"
 import { AiInsights } from "@/components/dashboard/AiInsights"
+import { TransportWidget } from "@/components/dashboard/TransportWidget"
+import { VolunteerWidget } from "@/components/dashboard/VolunteerWidget"
+import { SustainabilityWidget } from "@/components/dashboard/SustainabilityWidget"
 
 export default function OpsDashboard() {
   const { data: heatmap } = useGetCrowdHeatmap()
@@ -44,6 +47,12 @@ export default function OpsDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ActiveIncidentsTable incidents={incidents || []} />
             <GateCongestionTable gates={gates || []} />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <TransportWidget />
+            <VolunteerWidget />
+            <SustainabilityWidget />
           </div>
         </div>
 

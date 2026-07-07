@@ -11,6 +11,10 @@ vi.mock("@workspace/api-client-react", () => ({
   useListGates: () => ({ data: [] }),
   useListIncidents: () => ({ data: [] }),
   useListAlerts: () => ({ data: [] }),
+  useListTransport: () => ({ data: [] }),
+  useListVolunteers: () => ({ data: [] }),
+  useGetSustainability: () => ({ data: { powerGridLoadPercent: 0, renewableEnergyUsagePercent: 0, wasteManagementCapacityPercent: 0, carbonOffsetTons: 0 } }),
+  useGenerateAnnouncement: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useGetOperationalRecommendations: () => ({
     data: [],
     refetch: vi.fn(),

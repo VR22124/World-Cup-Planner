@@ -321,6 +321,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/AnnouncementResponse"
 
+  /stadium/sustainability:
+    get:
+      operationId: getSustainability
+      tags: [stadium]
+      summary: Get sustainability and energy metrics
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SustainabilityResponse'
+
 components:
   schemas:
     HealthStatus:
@@ -788,3 +801,25 @@ components:
         - spanish
         - french
         - portuguese
+    SustainabilityResponse:
+      type: object
+      required:
+        - powerGridLoadPercent
+        - renewableEnergyUsagePercent
+        - carbonOffsetTons
+        - wasteManagementCapacityPercent
+        - waterUsageLiters
+        - updatedAt
+      properties:
+        powerGridLoadPercent:
+          type: number
+        renewableEnergyUsagePercent:
+          type: number
+        carbonOffsetTons:
+          type: number
+        wasteManagementCapacityPercent:
+          type: number
+        waterUsageLiters:
+          type: number
+        updatedAt:
+          type: string

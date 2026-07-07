@@ -38,6 +38,7 @@ import type {
   Incident,
   OperationalRecommendation,
   StadiumStatus,
+  SustainabilityResponse,
   TransportRoute,
   Volunteer
 } from './api.schemas';
@@ -1424,4 +1425,81 @@ export const useGenerateAnnouncement = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getGenerateAnnouncementMutationOptions(options));
     }
+
+export const getGetSustainabilityUrl = () => {
+
+
+
+
+  return `/api/stadium/sustainability`
+}
+
+/**
+ * @summary Get sustainability and energy metrics
+ */
+export const getSustainability = async ( options?: RequestInit): Promise<SustainabilityResponse> => {
+
+  return customFetch<SustainabilityResponse>(getGetSustainabilityUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSustainabilityQueryKey = () => {
+    return [
+    `/api/stadium/sustainability`
+    ] as const;
+    }
+
+
+export const getGetSustainabilityQueryOptions = <TData = Awaited<ReturnType<typeof getSustainability>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSustainability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSustainabilityQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSustainability>>> = ({ signal }) => getSustainability({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSustainability>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSustainabilityQueryResult = NonNullable<Awaited<ReturnType<typeof getSustainability>>>
+export type GetSustainabilityQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get sustainability and energy metrics
+ */
+
+export function useGetSustainability<TData = Awaited<ReturnType<typeof getSustainability>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSustainability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSustainabilityQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

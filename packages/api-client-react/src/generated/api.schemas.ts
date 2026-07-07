@@ -353,3 +353,12 @@ export interface AnnouncementResponse {
   portuguese: string;
 }
 
+export interface SustainabilityResponse {
+  powerGridLoadPercent: number;
+  renewableEnergyUsagePercent: number;
+  carbonOffsetTons: number;
+  wasteManagementCapacityPercent: number;
+  waterUsageLiters: number;
+  updatedAt: string;
+}
+
