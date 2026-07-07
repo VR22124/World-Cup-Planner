@@ -8,7 +8,7 @@ import {
   ListGeminiMessagesParams,
   SendGeminiMessageParams,
 } from "@workspace/api-zod";
-import { streamGeminiResponse, buildStadiumContext } from "../../services/aiService";
+import { streamGeminiResponse, buildStadiumContext } from "../../services/ai";
 
 const router: IRouter = Router();
 
@@ -206,7 +206,7 @@ router.post("/gemini/conversations/:id/messages", async (req, res) => {
 });
 
 import { GenerateAnnouncementBody } from "@workspace/api-zod";
-import { generateAnnouncement } from "../../services/aiService";
+import { generateAnnouncement } from "../../services/ai";
 
 // Generate Multilingual Announcement
 router.post("/gemini/announcement", async (req, res) => {

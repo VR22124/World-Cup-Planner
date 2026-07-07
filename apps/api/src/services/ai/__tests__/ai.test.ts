@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { buildStadiumContext } from "./aiService";
+import { buildStadiumContext } from "../index";
 
 // Mock the simulator
-vi.mock("./stadiumSimulator.js", () => ({
+vi.mock("../../stadiumSimulator.js", () => ({
   getStadiumStatus: () => ({
     matchStatus: { homeTeam: "A", awayTeam: "B", homeScore: 0, awayScore: 0, minute: 10, phase: "first_half" },
     totalAttendance: 50000,
@@ -28,14 +28,14 @@ vi.mock("./stadiumSimulator.js", () => ({
   ]
 }));
 
-import { getOperationalRecommendations } from "./aiService";
+import { getOperationalRecommendations } from "../index";
 
 describe("aiService", () => {
   it("buildStadiumContext includes closed gates and congested gates", () => {
     const context = buildStadiumContext();
-    expect(context).toContain("CLOSED GATES: Gate 1");
-    expect(context).toContain("CONGESTED GATES: Gate 2");
-    expect(context).toContain("HIGH DENSITY ZONES: Zone A");
+    expect(context).toContain("CLOSED GATES: Gate 1 (CLOSED - 100% capacity)");
+    expect(context).toContain("CONGESTED GATES: Gate 2 (85% capacity, 15min queue)");
+    expect(context).toContain("HIGH DENSITY ZONES: Zone A (95%)");
     expect(context).toContain("TRANSPORT ISSUES: Train: delayed");
   });
 

@@ -3,7 +3,7 @@ import { GetAiAssistanceBody } from "@workspace/api-zod";
 import {
   getAssistance,
   getOperationalRecommendations,
-} from "../../services/aiService.js";
+} from "../../services/ai/index.js";
 
 const router: IRouter = Router();
 
