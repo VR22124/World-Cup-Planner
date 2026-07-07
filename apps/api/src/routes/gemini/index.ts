@@ -12,6 +12,16 @@ import { streamGeminiResponse, buildStadiumContext } from "../../services/ai";
 
 const router: IRouter = Router();
 
+import rateLimit from "express-rate-limit";
+const llmRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute
+  message: { error: "Too many requests to LLM endpoints, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+router.use(llmRateLimiter);
+
 // Build a system prompt grounded in live stadium context
 function buildSystemPrompt(): string {
   const fullContext = buildStadiumContext();

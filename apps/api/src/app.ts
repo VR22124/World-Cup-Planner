@@ -63,6 +63,12 @@ app.use(
   }),
 );
 
+// Add Permissions-Policy header
+app.use((_req, res, next) => {
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), usb=(), payment=()");
+  next();
+});
+
 // ---------------------------------------------------------------------------
 // 3. Compression — gzip / brotli responses
 // ---------------------------------------------------------------------------
@@ -114,6 +120,24 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
+
+// Custom NoSQL Injection Prevention (Safe for Express 5)
+app.use((req, _res, next) => {
+  const sanitize = (obj: any) => {
+    if (obj instanceof Object) {
+      for (const key in obj) {
+        if (typeof key === 'string' && (key.startsWith('$') || key.includes('.'))) {
+          delete obj[key];
+        } else {
+          sanitize(obj[key]);
+        }
+      }
+    }
+  };
+  if (req.body) sanitize(req.body);
+  if (req.params) sanitize(req.params);
+  next();
+});
 
 // ---------------------------------------------------------------------------
 // 7. Application routes

@@ -24,6 +24,10 @@ const server = app.listen(port, (err) => {
   logger.info({ port }, "Server listening");
 });
 
+// Protect against Slowloris DoS attacks
+server.keepAliveTimeout = 30000; 
+server.headersTimeout = 31000;
+
 // ---------------------------------------------------------------------------
 // Graceful shutdown — close connections before process exit
 // ---------------------------------------------------------------------------
