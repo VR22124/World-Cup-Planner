@@ -1,56 +1,174 @@
-# StadiumIQ Architecture
+# StadiumIQ — Two-Layer Architecture
 
-This document provides a high-level overview of the StadiumIQ application architecture, design patterns, and critical technical decisions.
+This document defines the authoritative architecture of StadiumIQ. Every engineer and AI agent working on this codebase must respect these invariants.
 
 ## System Overview
 
-StadiumIQ is a highly scalable, real-time command center application built to manage stadium operations during major global sporting events like the World Cup. It leverages modern web technologies and a sophisticated AI backend to deliver actionable insights based on live simulated data.
+StadiumIQ is a real-time command center for managing FIFA World Cup 2026 stadium operations at MetLife Stadium, New York. It uses Generative AI (Gemini) to deliver actionable intelligence for crowd management, incident routing, live transit scheduling, and multi-persona assistance.
 
-## Monorepo Structure
+---
 
-The project utilizes a Turborepo-inspired monorepo structure, strictly isolating domains for maximum modularity and reusability:
+## Two-Layer Contract
 
-- `apps/web/`: The React 19 Frontend (Vite)
-- `apps/api/`: The Express.js Backend and Gemini AI services
-- `packages/api-client-react/`: Auto-generated Orval React Query hooks for seamless typed API fetching
-- `packages/api-zod/`: Auto-generated Zod validation schemas
-- `packages/api-spec/`: OpenAPI specification defining the contract between frontend and backend
-- `packages/db/`: Database schemas and ORM (Drizzle) configurations
+The codebase is organised into two strict, non-overlapping layers with a clear HTTP boundary between them.
 
-## Backend Architecture (apps/api)
+```
+┌────────────────────────────────────────────────────────────────────┐
+│  LAYER 2: CLIENT  (apps/web + packages/api-client-react)           │
+│                                                                    │
+│  pages/          → Pure layout. Delegates data to hooks.           │
+│  hooks/          → Data fetching + derivation. No fetch in UI.     │
+│  components/     → Pure UI renderers. Receive props, emit events.  │
+│                                                                    │
+│  INVARIANTS:                                                       │
+│  ✗ No business logic in pages or components                        │
+│  ✗ No raw fetch/axios calls inside components                      │
+│  ✗ No knowledge of how the server implements anything              │
+│  ✓ All data fetching goes through custom hooks                     │
+│  ✓ All derivation (filter/sort/transform) goes in hooks            │
+│  ✓ Components receive props and call hooks                         │
+└──────────────────────────┬─────────────────────────────────────────┘
+                           │ HTTP (JSON / SSE)
+                           │ Contract defined in packages/api-spec
+┌──────────────────────────┼─────────────────────────────────────────┐
+│  LAYER 1: SERVER  (apps/api)                                       │
+│                                                                    │
+│  routes/         → HTTP transport only. Parse → service → respond. │
+│  services/       → Pure domain logic. No Express req/res imports.  │
+│  packages/db/    → All data access. Typed query functions only.    │
+│                                                                    │
+│  INVARIANTS:                                                       │
+│  ✗ No Express imports below the routes/ boundary                   │
+│  ✗ No raw drizzle calls outside packages/db/src/queries/           │
+│  ✗ No business logic inside route handlers                         │
+│  ✓ Routes are ≤ 15 lines: parse → call service → respond           │
+│  ✓ Services are pure functions: input → output                     │
+│  ✓ All DB access via packages/db/src/queries/ functions            │
+└────────────────────────────────────────────────────────────────────┘
+```
 
-The backend is built with Express.js and is strictly optimized for **Vercel Serverless Functions**.
+---
 
-### Serverless Routing (`api/index.ts`)
-To bridge the gap between traditional Node/Express server architectures and Serverless execution, a lightweight adapter sits at the root of the repository (`/api/index.ts`). This file imports the configured Express app and exposes it as a default export, which Vercel's `@vercel/node` builder maps to serverless endpoints.
+## Server Layer (Layer 1)
 
-### Simulation Engine (`apps/api/src/services/simulator/`)
-The core data engine for StadiumIQ is a real-time Simulator. Originally a monolith, it has been refactored into distinct cohesive modules:
-1. **`core.ts`**: Handles seeded randomness, shared utilities, and types.
-2. **`match.ts`**: Calculates match phases, scores, and weather elements.
-3. **`crowd.ts`**: Models gate congestion, sector heatmaps, and total attendance dynamically.
-4. **`transport.ts`**: Simulates inbound/outbound transit delays.
-5. **`incidents.ts`**: Spawns critical emergency alerts and routes them to operations.
+### HTTP Transport (`apps/api/src/routes/`)
 
-### AI Integration (`apps/api/src/services/aiService.ts`)
-StadiumIQ leverages the Gemini API. The AI Service dynamically injects live JSON context from the Simulator Engine (gate status, live heatmaps, incident queues) directly into the AI's system prompt. This ensures the AI does not hallucinate and generates pinpoint accurate operational recommendations based on current real-world constraints.
+Route handlers enforce a strict thin-handler pattern:
 
-## Frontend Architecture (apps/web)
+1. **Parse** — validate request params/body with Zod
+2. **Call** — invoke a domain service function
+3. **Respond** — serialise the result to JSON
 
-Built with **React 19** and **Vite**, utilizing a component-based architecture powered by Shadcn UI.
+Route files are never longer than ~15 lines per handler. **No business logic lives here.**
 
-### State Management
-State is managed exclusively via **TanStack React Query**, utilizing the auto-generated hooks from `packages/api-client-react/`. This guarantees perfectly typed requests and responses.
+#### Route Modules
+| Module | Endpoints |
+|--------|-----------|
+| `routes/stadium/status.ts` | `GET /api/stadium/status` |
+| `routes/stadium/gates.ts` | `GET /api/stadium/gates` |
+| `routes/stadium/heatmap.ts` | `GET /api/stadium/crowd` |
+| `routes/stadium/transport.ts` | `GET /api/stadium/transport` |
+| `routes/stadium/incidents.ts` | `GET /api/stadium/incidents` |
+| `routes/stadium/supporting.ts` | volunteers, alerts, accessibility, sustainability |
+| `routes/gemini/index.ts` | All `/api/gemini/*` conversation + streaming endpoints |
+| `routes/ai/index.ts` | `POST /api/ai/assist`, `GET /api/ai/recommendations` |
 
-### Accessibility (A11y)
-Accessibility is heavily prioritized across all critical user interfaces:
-- **Ops Dashboard**: Utilizes `role="alert"` and `aria-live="assertive"` to ensure incoming critical incidents are immediately announced by screen readers.
-- **AI Chat Widget**: Implemented with `role="dialog"` and explicit `aria-label`s on all interactive elements to prevent keyboard traps and guarantee context.
+### Domain Service Layer (`apps/api/src/services/`)
+
+Pure business logic — **zero Express imports**.
+
+| Module | Responsibility |
+|--------|---------------|
+| `services/stadium/index.ts` | **Facade** — sole entry point for all simulator data |
+| `services/simulator/` | Deterministic live data engine (crowd, gates, incidents, transport) |
+| `services/ai/assistant.ts` | Multi-persona Gemini AI assistant |
+| `services/ai/recommendations.ts` | AI-generated operational recommendations |
+| `services/ai/announcements.ts` | Multi-lingual PA announcement generation |
+| `services/ai/contextBuilder.ts` | Injects live stadium state into AI prompts |
+
+### Data Access Layer (`packages/db/`)
+
+All database interaction is isolated here.
+
+| Module | Responsibility |
+|--------|---------------|
+| `packages/db/src/schema/` | Drizzle ORM table definitions |
+| `packages/db/src/queries/conversations.ts` | Typed CRUD for conversations |
+| `packages/db/src/queries/messages.ts` | Typed CRUD for messages |
+
+**Services import from `packages/db/src/queries/`, never from raw drizzle inline.**
+
+---
+
+## Client Layer (Layer 2)
+
+### Custom Hooks (`apps/web/src/hooks/`)
+
+All data fetching, caching, and derivation logic lives in hooks.
+
+| Hook | Responsibility |
+|------|---------------|
+| `use-stadium-data.ts` | Aggregated snapshot of all stadium state |
+| `use-incident-routing.ts` | Incident filtering, sorting, and severity grouping |
+| `use-transport-schedule.ts` | Transport fetch + on-time/delayed/suspended derivation |
+| `use-gemini-stream.ts` | SSE streaming for AI chat responses |
+
+### Pages (`apps/web/src/pages/`)
+
+Pages are pure layout and routing components. They:
+- Call one or more hooks
+- Pass data down as props
+- Render layout/composition
+
+**Zero business logic, zero fetch calls in page files.**
+
+### Components (`apps/web/src/components/`)
+
+Components are pure UI renderers. They:
+- Accept typed props
+- Call hooks where needed (e.g., `useGenerateAnnouncement`)
+- Emit events via callbacks
+
+**Zero fetch calls in pure UI components.**
+
+### Server Contract Boundary (`packages/api-client-react/`)
+
+| Module | Responsibility |
+|--------|---------------|
+| `src/generated/api.ts` | Auto-generated React Query hooks from OpenAPI spec |
+| `src/query-keys.ts` | Typed query key factories — no hardcoded key arrays |
+| `src/custom-fetch.ts` | Fetch adapter with auth, error boundary, base URL config |
+
+---
 
 ## Testing Strategy
 
-The repository utilizes **Vitest** for all testing requirements.
-- **Frontend Unit Tests**: React Testing Library renders components via `jsdom`, testing UI states (e.g., Header rendering, Chat Widget interactivity). API hooks are explicitly mocked to isolate UI behavior.
-- **Backend Unit Tests**: Critical path business logic (such as the AI Context generator) is tested to ensure accurate data extraction and injection.
+| Layer | What to Test | How |
+|-------|-------------|-----|
+| Server — Services | Domain logic (pure functions) | Vitest unit tests, no mocks |
+| Server — Routes | HTTP contract | Supertest integration tests |
+| Client — Hooks | Data transformation logic | Vitest unit tests |
+| Client — Components | UI state and accessibility | React Testing Library + jsdom |
 
-The test suite is verified via `pnpm run test` and `pnpm run typecheck` across all workspace applications.
+Run all tests: `pnpm run test`
+Run with coverage: `pnpm run test -- --coverage`
+
+---
+
+## Monorepo Structure
+
+```
+apps/
+  api/           # Layer 1: Express server
+  web/           # Layer 2: React 19 frontend (Vite)
+packages/
+  api-spec/      # OpenAPI contract (source of truth)
+  api-client-react/  # Generated hooks + query-keys
+  api-zod/       # Generated Zod validators
+  db/            # Drizzle ORM + typed query functions
+  integrations-gemini-ai/  # Gemini SDK wrapper
+```
+
+---
+
+*Last updated: 2026-07-07 — Two-Layer Architecture refactor*

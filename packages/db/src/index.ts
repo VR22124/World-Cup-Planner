@@ -16,3 +16,8 @@ export const db = drizzle(pool, { schema });
 export { conversations, insertConversationSchema, type Conversation, type InsertConversation } from "./schema/conversations.js";
 export { messages, insertMessageSchema, type Message, type InsertMessage } from "./schema/messages.js";
 export { eq, and, desc, sql } from "drizzle-orm";
+
+// Data Access Layer — typed query functions (preferred over raw drizzle inline calls)
+export * as conversationQueries from "./queries/conversations.js";
+export * as messageQueries from "./queries/messages.js";
+

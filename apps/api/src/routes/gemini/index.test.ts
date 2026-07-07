@@ -3,51 +3,40 @@ import request from 'supertest';
 import express from 'express';
 import geminiRouter from './index.js';
 
-// Mock DB
+const mockConversation = { id: 1, title: 'Test Conv', createdAt: new Date(), messages: [] };
+
+// Mock @workspace/db — now the route uses DAL query functions, not raw drizzle
 vi.mock('@workspace/db', () => ({
-  db: {
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        orderBy: vi.fn(() => Promise.resolve([
-          { id: 1, title: 'Test Conv', createdAt: new Date() }
-        ]))
-      }))
-    })),
-    insert: vi.fn(() => ({
-      values: vi.fn(() => ({
-        returning: vi.fn(() => Promise.resolve([{ id: 2, title: 'New Conv' }]))
-      }))
-    })),
-    delete: vi.fn(() => ({
-      where: vi.fn(() => ({
-        returning: vi.fn(() => Promise.resolve([{ id: 1 }]))
-      }))
-    })),
-    query: {
-      conversations: {
-        findFirst: vi.fn(() => Promise.resolve({
-          id: 1,
-          title: 'Test Conv',
-          messages: []
-        }))
-      }
-    }
+  conversationQueries: {
+    listConversations: vi.fn(() => Promise.resolve([mockConversation])),
+    createConversation: vi.fn((title: string) => Promise.resolve({ id: 2, title, createdAt: new Date() })),
+    getConversationWithMessages: vi.fn((id: number) =>
+      id === 1 ? Promise.resolve(mockConversation) : Promise.resolve(null)
+    ),
+    deleteConversation: vi.fn((id: number) =>
+      id === 1 ? Promise.resolve(mockConversation) : Promise.resolve(null)
+    ),
   },
+  messageQueries: {
+    listMessages: vi.fn(() => Promise.resolve([])),
+    insertMessage: vi.fn(() => Promise.resolve({ id: 1, role: 'user', content: 'hi', conversationId: 1, createdAt: new Date() })),
+  },
+  // Unused but required to satisfy the module shape
+  db: {},
   eq: vi.fn(),
-  conversations: {
-    id: 'id',
-    createdAt: 'createdAt'
-  },
-  messages: {
-    conversationId: 'conversationId',
-    createdAt: 'createdAt'
-  }
+  conversations: {},
+  messages: {},
 }));
 
-// Create a dummy express app to test the router
+// Mock AI service (no real Gemini calls during tests)
+vi.mock('../../services/ai/index.js', () => ({
+  streamGeminiResponse: vi.fn(async function* () { yield 'ok'; }),
+  buildStadiumContext: vi.fn(() => 'STADIUM: Test'),
+  generateAnnouncement: vi.fn(() => Promise.resolve({ en: 'Attention please' })),
+}));
+
 const app = express();
 app.use(express.json());
-// Add mock logger to req since the real app does this
 app.use((req, _res, next) => {
   (req as any).log = { error: vi.fn() };
   next();
