@@ -15,6 +15,8 @@ import { AiInsights } from "@/components/dashboard/AiInsights"
 import { TransportWidget } from "@/components/dashboard/TransportWidget"
 import { VolunteerWidget } from "@/components/dashboard/VolunteerWidget"
 import { SustainabilityWidget } from "@/components/dashboard/SustainabilityWidget"
+import { EmergencyBroadcastWidget } from "@/components/dashboard/EmergencyBroadcastWidget"
+import { EvacuationProtocol } from "@/components/dashboard/EvacuationProtocol"
 
 export default function OpsDashboard() {
   const { data: heatmap } = useGetCrowdHeatmap()
@@ -56,13 +58,15 @@ export default function OpsDashboard() {
           </div>
         </div>
 
-        {/* Right Column - AI Recommendations */}
-        <div className="xl:col-span-1">
+        {/* Right Column - AI Recommendations & Command Protocols */}
+        <div className="xl:col-span-1 space-y-6">
           <AiInsights 
             recommendations={recommendations || []}
             refetchRecommendations={refetchRecommendations}
             isFetchingRecommendations={isFetchingRecommendations}
           />
+          <EmergencyBroadcastWidget />
+          <EvacuationProtocol />
         </div>
 
       </div>
