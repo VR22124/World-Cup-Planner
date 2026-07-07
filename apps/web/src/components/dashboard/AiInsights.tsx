@@ -52,7 +52,7 @@ export function AiInsights({
                   ))}
                 </div>
               ) : recommendations?.map(rec => (
-                <div key={rec.id} className="p-4 rounded-lg border border-border bg-card/80 backdrop-blur shadow-sm space-y-3" role="article" aria-live="polite">
+                <div key={rec.id} tabIndex={0} className="p-4 rounded-lg border border-border bg-card/80 backdrop-blur shadow-sm space-y-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all" role="article" aria-live="polite">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase">
                       <Lightbulb className="w-3 h-3 text-amber-500" aria-hidden="true" />

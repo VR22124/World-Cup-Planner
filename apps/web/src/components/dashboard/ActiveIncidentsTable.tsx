@@ -31,7 +31,7 @@ function AnnouncementDialog({ incident }: { incident: any }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" aria-label="Generate PA Announcement">
+        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Generate PA Announcement">
           <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
       </DialogTrigger>

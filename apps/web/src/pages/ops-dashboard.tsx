@@ -23,7 +23,14 @@ export default function OpsDashboard() {
   const criticalAlerts = alerts?.filter(a => a.level === 'critical' && !a.acknowledged) || []
 
   return (
-    <main className="p-6 max-w-[1600px] mx-auto space-y-6" aria-label="Operations Dashboard">
+    <>
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground"
+      >
+        Skip to main content
+      </a>
+      <main id="main-content" className="p-6 max-w-[1600px] mx-auto space-y-6" aria-label="Operations Dashboard">
       <DashboardHeader />
 
       <CriticalAlerts alerts={criticalAlerts} />
@@ -50,6 +57,6 @@ export default function OpsDashboard() {
         </div>
 
       </div>
-    </main>
+    </main></>
   )
 }

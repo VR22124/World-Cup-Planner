@@ -118,6 +118,7 @@ export function AiChatWidget({ persona }: { persona: "fan" | "operations" | "vol
             aria-label="Chat input"
           />
           <Button type="submit" size="icon" disabled={!input.trim() || isStreaming || !conversationId} aria-label="Send message">
+            <span className="sr-only">Send message</span>
             <Send className="w-4 h-4" aria-hidden="true" />
           </Button>
         </form>
