@@ -16,7 +16,7 @@ const SEVERITY_ORDER: Record<string, number> = {
   low: 3,
 };
 
-interface Incident {
+export interface Incident {
   id: string;
   type: string;
   severity: string;

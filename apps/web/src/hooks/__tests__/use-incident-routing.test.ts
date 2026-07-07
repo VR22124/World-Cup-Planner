@@ -1,8 +1,8 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect } from "vitest";
-import { useIncidentRouting } from "@/hooks/use-incident-routing";
+import { useIncidentRouting, IncidentRoutingResult, Incident } from "../use-incident-routing";
 
-const mockIncidents = [
+const mockIncidents: Incident[] = [
   { id: "1", type: "medical", severity: "critical", status: "investigating", location: "Gate A", description: "Medical emergency" },
   { id: "2", type: "security", severity: "high", status: "investigating", location: "Gate B", description: "Security alert" },
   { id: "3", type: "transport", severity: "low", status: "resolved", location: "Metro", description: "Delay resolved" },
